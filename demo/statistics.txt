@@ -1,0 +1,19 @@
+154592 cases in exricise_contest/data_train.json
+17131 cases in exricise_contest/data_valid.json
+32508 cases in exricise_contest/data_test.json
+1710856 cases in first_stage/train.json
+217016 cases in first_stage/test.json
+748203 cases in restData/rest_data.json
+35922 cases in final_test.json
+
+202 accusation types in all datasets
+183 law types in all datasets
+
+average prison time in exercise_contest/ is 25 months
+totally 2090 death or life imprison cases in exeicise_contest/
+average prison time in first_stage/ is 15 months
+totally 8695 death or life imprison cases in first_stage/
+top 10 most/least common cases number in exercise_contest/ is 62460/252
+top 10 most/least common cases number in first_stage/ is 1565122/340
+top 10 most/least common cases number in exercise_contest/ is 84033/282
+top 10 most/least common cases number in first_stage/ is 1595527/384

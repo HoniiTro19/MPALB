@@ -1,0 +1,5 @@
+*.json
+*.pkl
+word2vec.*
+.idea/
+__pycache__/
