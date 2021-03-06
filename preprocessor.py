@@ -290,7 +290,14 @@ class Preprocessor:
         src_article_list = [self.path.article_seg_path,
                             self.path.criminal_basis_seg_path,
                             self.path.penalty_basis_seg_path]
-        
+
+        if set_type == "small":
+            tar_article_list.append(self.path.article_w2v_small_path)
+            src_article_list.append(self.path.article_seg_small_path)
+        else:
+            tar_article_list.append(self.path.article_w2v_large_path)
+            src_article_list.append(self.path.article_seg_large_path)
+
         add_punc = "，。、【 】 “”：；（）《》‘’{}？！⑦()、%^>℃：.”“^-——=&#@￥"
         all_punc = (punctuation + add_punc).split()
         with open(self.path.stop_word_path, "r", encoding="UTF-8") as file:
@@ -299,7 +306,7 @@ class Preprocessor:
         cases = []
         w2v_model_path = self.path.w2v_model_path
         embed_size = self.config.getint("preprocess", "embed_size")
-        if not self.config.getboolean("preprocess", "is_train_wordvec") and os.self.path.exists(w2v_model_path):
+        if not self.config.getboolean("preprocess", "is_train_wordvec") and os.path.exists(w2v_model_path):
             model = Word2Vec.load(self.path.w2v_model_path)
         else:
             for src_path in src_fact_list:
@@ -327,8 +334,7 @@ class Preprocessor:
         for word in vocab.keys():
             dictionary[word] = len(dictionary)
             embed_matrix.append(model.wv[word].tolist())
-        # UNK
-        embed_matrix.append([0] * embed_size)
+
         # BLANK
         embed_matrix.append([0] * embed_size)
         with open(self.path.embed_matrix_path, "w", encoding="UTF-8") as file:
@@ -399,13 +405,15 @@ class Preprocessor:
                     if word not in filter:
                         try:
                             fact_embed.append(dictionary[word])
+                            fact_len += 1
                         except Exception:
-                            fact_embed.append(len(dictionary))
-                        fact_len += 1
+                            continue
+                            # fact_embed.append(len(dictionary))
+
                 if fact_len == 0:
                     continue
                 self.seg_seq_len.append(fact_len // self.interval)
-                fact_embed += [len(dictionary) + 1] * (self.max_seq_len - fact_len)
+                fact_embed += [len(dictionary)] * (self.max_seq_len - fact_len)
                 line["fact"] = fact_embed
                 line["accusation"] = accu_dict[line["accusation"]]
                 line["article"] = law_dict[line["article"]]
@@ -428,12 +436,13 @@ class Preprocessor:
                     if word not in filter:
                         try:
                             fact_embed.append(dictionary[word])
+                            fact_len += 1
                         except Exception:
-                            fact_embed.append(len(dictionary))
-                        fact_len += 1
+                            continue
+                            # fact_embed.append(len(dictionary))
                 if fact_len == 0:
                     continue
-                fact_embed += [len(dictionary) + 1] * (self.max_seq_len - fact_len)
+                fact_embed += [len(dictionary)] * (self.max_seq_len - fact_len)
                 line["fact"] = fact_embed
                 line["len"] = fact_len
                 out.append(line)

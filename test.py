@@ -4,10 +4,11 @@ import torch
 from path import Path
 from eval import Eval
 import torch.nn as nn
+from loader import SmallDataset
 from utils import load_list_dict
-from loader import DatasetLoader
 from configure import ConfigParser
 from net.full_model import FullModel
+from torch.utils.data import DataLoader
 
 config = ConfigParser()
 path = Path(config)
@@ -34,9 +35,12 @@ model.to(device)
 model.eval()
 
 train_set = config.get("train", "train_set")
+batch_size = config.getint("train", "batch_size")
+is_shuffle = config.getboolean("train", "is_shuffle")
 if train_set == "small":
     test_small_w2v_path = path.test_small_w2v_path
-    test_data = DatasetLoader(test_small_w2v_path)
+    test_dataset = SmallDataset(test_small_w2v_path)
+    test_data = DataLoader(test_dataset, batch_size, is_shuffle, drop_last=True)
 elif train_set == "large":
     raise Exception("Not ready for large dataset")
 else:
@@ -62,7 +66,6 @@ eval_article = Eval(len(list_law))
 eval_imprison = Eval(len(list_imprison))
 total_loss = 0
 for data in test_data:
-    model.init_hidden()
     outputs_accu, outputs_article, outputs_imprison, tags_accu, tags_article, tags_imprison = model(data[0], data[1])
     loss_accu = criterion(outputs_accu, data[2])
     loss_article = criterion(outputs_article, data[3])

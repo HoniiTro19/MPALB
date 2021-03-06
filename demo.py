@@ -207,12 +207,12 @@ class Demo:
         interval_count = {interval: 0 for interval in intervals}
         for interval in imprison_interval:
             interval_count[interval] += 1
-        fig, ax = plt.subplots()
-        ax.set_xlabel("Imprisonment Length")
-        ax.set_ylabel("Occurrence Number")
-        ax.set_xticks(np.arange(len(intervals)), intervals)
-        ax.hist(interval_count.values())
-        fig.savefig(save_path)
+        plt.figure()
+        plt.bar(np.arange(len(intervals)), interval_count.values())
+        plt.xlabel("Imprisonment Length")
+        plt.ylabel("Occurrence Number")
+        plt.xticks(np.arange(len(intervals)), intervals)
+        plt.savefig(save_path)
 
     def train_valid_record(self, name, train_loss, valid_loss):
         epoch_num = len(train_loss)
@@ -240,6 +240,43 @@ class Demo:
         plt.margins(0.2)
         plt.subplots_adjust(bottom=0.15)
         plt.savefig(save_path)
+
+    def display_imprison(self, cm, name):
+        classes = ["0", "6", "9", "12", "24", "36", "60", "84", "120", "120-", "DP_LI"]
+        cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+        str_cm = cm.astype(np.str).tolist()
+        for row in str_cm:
+            print('\t'.join(row))
+        for i in range(cm.shape[0]):
+            for j in range(cm.shape[1]):
+                if int(cm[i, j] * 100 + 0.5) == 0:
+                    cm[i, j] = 0
+
+        fig, ax = plt.subplots()
+
+        ax.set(xticks=np.arange(cm.shape[1]),
+               yticks=np.arange(cm.shape[0]),
+               xticklabels=classes, yticklabels=classes,
+               ylabel='Actual',
+               xlabel='Predicted')
+
+        ax.set_xticks(np.arange(cm.shape[1] + 1) - .5, minor=True)
+        ax.set_yticks(np.arange(cm.shape[0] + 1) - .5, minor=True)
+        ax.grid(which="minor", color="gray", linestyle='-', linewidth=0.2)
+        ax.tick_params(which="minor", bottom=False, left=False)
+
+        fmt = 'd'
+        thresh = cm.max() / 2.
+        for i in range(cm.shape[0]):
+            for j in range(cm.shape[1]):
+                if int(cm[i, j] * 100 + 0.5) > 0:
+                    ax.text(j, i, format(int(cm[i, j] * 100 + 0.5), fmt) + '%',
+                            ha="center", va="center",
+                            color="white" if cm[i, j] > thresh else "black")
+        fig.tight_layout()
+        save_path = path.demo_figure_path + name
+        plt.savefig(save_path, dpi=300)
+        plt.show()
 
 if __name__ == "__main__":
     path = Path(config)

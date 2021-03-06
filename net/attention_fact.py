@@ -1,10 +1,13 @@
 import ipdb
 import torch
 import torch.nn as nn
+from configure import ConfigParser
 import torch.nn.functional as F
 
 class AttentionFact(nn.Module):
     def __init__(self):
+        config = ConfigParser()
+        self.is_single_process = config.getboolean("demo", "is_single_process")
         super(AttentionFact, self).__init__()
 
     def forward(self, hidden, querys):
@@ -20,6 +23,8 @@ class AttentionFact(nn.Module):
         factor = torch.matmul(hidden, querys)
         factor = factor.transpose(1, 2).contiguous()
         factor = F.softmax(factor, dim=2)
+        if self.is_single_process:
+            print("fact attention->", factor)
         result = torch.matmul(factor, hidden)
         result = result.view(-1, channel_num * hidden_size)
         return result

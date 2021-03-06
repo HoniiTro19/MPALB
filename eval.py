@@ -1,5 +1,6 @@
 import ipdb
-from prettytable import PrettyTable
+from demo import Demo
+import numpy as np
 
 class Eval:
     def __init__(self, class_num):
@@ -11,6 +12,7 @@ class Eval:
         self.precision = [0] * class_num
         self.recall = [0] * class_num
         self.F1 = [0] * class_num
+        self.confusion_matrix = np.zeros([class_num, class_num])
 
     def evaluate(self, preds, truths):
         for pred, truth in zip(preds, truths):
@@ -18,6 +20,7 @@ class Eval:
             self.truth[truth] += 1
             if pred == truth:
                 self.TP[truth] += 1
+            self.confusion_matrix[truth, pred] += 1
 
     def generate_result(self):
         for idx in range(self.class_num):
@@ -47,5 +50,6 @@ class Eval:
         self.recall_micro = total_TP / total_truth if total_truth != 0 else 0
         self.F1_micro = 2 * self.precision_micro * self.recall_micro / (self.precision_micro + self.recall_micro) if self.precision_micro + self.recall_micro != 0 else 0
 
-    def display_result(self):
-        pass
+    def display_imprison(self):
+        demo = Demo()
+        demo.display_imprison(self.confusion_matrix, "imprison_confusion_matrix.png")

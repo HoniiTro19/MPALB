@@ -6,16 +6,13 @@ from path import Path
 from configure import ConfigParser
 from torch.utils.data import TensorDataset, IterableDataset, DataLoader
 
-config = ConfigParser()
-path = Path(config)
-use_gpu = config.getboolean("train", "use_gpu")
-device_num = config.getint("train", "gpu_device")
-cuda = torch.device("cuda:%d" % device_num)
-cpu = torch.device("cpu")
-device = cuda if use_gpu else cpu
-
-
 def SmallDataset(json_path):
+    config = ConfigParser()
+    use_gpu = config.getboolean("train", "use_gpu")
+    device_num = config.getint("train", "gpu_device")
+    cuda = torch.device("cuda:%d" % device_num)
+    cpu = torch.device("cpu")
+    device = cuda if use_gpu else cpu
     file = open(json_path, "r", encoding="UTF-8")
     lines = json.loads(file.read())
     file.close()
@@ -37,6 +34,13 @@ def SmallDataset(json_path):
 
 class LargeDataset(IterableDataset):
     def __init__(self, set_type):
+        config = ConfigParser()
+        path = Path(config)
+        use_gpu = config.getboolean("train", "use_gpu")
+        device_num = config.getint("train", "gpu_device")
+        cuda = torch.device("cuda:%d" % device_num)
+        cpu = torch.device("cpu")
+        self.device = cuda if use_gpu else cpu
         super(LargeDataset).__init__()
         preprocess_path = path.preprocess_path
         split_train_num = config.getint("preprocess", "split_train_num")
@@ -56,16 +60,12 @@ class LargeDataset(IterableDataset):
         for file_name in self.data_list:
             self.reload_file(file_name)
             for line in self.lines:
-                fact = torch.tensor(line["fact"], device=device, dtype=torch.int64)
-                doc_len = torch.tensor(line["len"], device=device, dtype=torch.int64)
-                accusation = torch.tensor(line["accusation"], device=device, dtype=torch.int64)
-                article = torch.tensor(line["article"], device=device, dtype=torch.int64)
-                imprison = torch.tensor(line["imprison"], device=device, dtype=torch.int64)
+                fact = torch.tensor(line["fact"], device=self.device, dtype=torch.int64)
+                doc_len = torch.tensor(line["len"], device=self.device, dtype=torch.int64)
+                accusation = torch.tensor(line["accusation"], device=self.device, dtype=torch.int64)
+                article = torch.tensor(line["article"], device=self.device, dtype=torch.int64)
+                imprison = torch.tensor(line["imprison"], device=self.device, dtype=torch.int64)
                 yield fact, doc_len, accusation, article, imprison
 
     def __iter__(self):
         return self.get_data()
-
-if __name__ == "__main__":
-    path = Path(config)
-    small_trainset = dataset_loader(path.train_small_w2v_path)

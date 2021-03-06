@@ -37,13 +37,16 @@ class RNN(nn.Module):
         # ReLU
         self.relu = nn.GELU()
 
-    def init_hidden(self):
+    def init_hidden(self, batch_size=None):
+        if batch_size is None:
+            batch_size = self.batch_size
+
         if self.cell_name == "LSTM":
             self.hidden = (
-                torch.zeros((self.num_layers * self.direction, self.batch_size, self.hidden_size), device=self.device, requires_grad=True),
-                torch.zeros((self.num_layers * self.direction, self.batch_size, self.hidden_size), device=self.device, requires_grad=True))
+                torch.zeros((self.num_layers * self.direction, batch_size, self.hidden_size), device=self.device, requires_grad=True),
+                torch.zeros((self.num_layers * self.direction, batch_size, self.hidden_size), device=self.device, requires_grad=True))
         else:
-            self.hidden = torch.randn((self.num_layers * self.direction, self.batch_size, self.hidden_size), device=self.device, requires_grad=True)
+            self.hidden = torch.randn((self.num_layers * self.direction, batch_size, self.hidden_size), device=self.device, requires_grad=True)
 
     def forward(self, fact, seq_lens):
         """

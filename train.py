@@ -61,6 +61,8 @@ class Train():
     def train_file(self):
         is_pretrain = self.config.getboolean("train", "is_pretrain")
         model_path = self.path.model_path
+        if not os.path.exists(model_path):
+            os.makedirs(model_path)
         model_pretrain_path = model_path + "model-%d.pkl" % self.config.getint("train", "last_model")
         model = FullModel()
         if is_pretrain:
@@ -88,7 +90,6 @@ class Train():
         lr = self.config.getfloat("train", "lr")
         embed_size = self.config.getint("preprocess", "embed_size")
         hidden_size = self.config.getint("train", "hidden_size")
-        accu_hidden_size = self.config.getint("train", "accu_hidden_size")
         optimizer = optim.Adam(model.parameters(), lr=lr)
 
         criterion_accu = FocalLoss(class_num=len(self.list_accu)).to(self.device)
@@ -108,7 +109,6 @@ class Train():
             eval_train_imprison = Eval(len(self.list_imprison))
             total_train_loss = 0
             for data in train_data:
-                model.init_hidden()
                 optimizer.zero_grad()
                 outputs_accu, outputs_article, outputs_imprison, tags_accu, tags_article, tags_imprison = model(data[0], data[1])
                 loss_accu = criterion_accu(outputs_accu, data[2])
@@ -121,6 +121,7 @@ class Train():
                 eval_train_accu.evaluate(tags_accu, data[2].tolist())
                 eval_train_article.evaluate(tags_article, data[3].tolist())
                 eval_train_imprison.evaluate(tags_imprison, data[4].tolist())
+
             train_losses.append(total_train_loss)
             eval_train_accu.generate_result()
             eval_train_article.generate_result()
@@ -148,62 +149,62 @@ class Train():
                                        eval_train_imprison.recall_macro,
                                        eval_train_imprison.F1_macro))
 
-            # Valid
-            model.eval()
-            eval_valid_accu = Eval(len(self.list_accu))
-            eval_valid_article = Eval(len(self.list_law))
-            eval_valid_imprison = Eval(len(self.list_imprison))
-            total_valid_loss = 0
-            for data in valid_data:
-                model.init_hidden()
-                outputs_accu, outputs_article, outputs_imprison, tags_accu, tags_article, tags_imprison = model(data[0], data[1])
-                loss_accu = criterion_accu(outputs_accu, data[2])
-                loss_article = criterion_article(outputs_article, data[3])
-                loss_imprison = criterion_imprison(outputs_imprison, data[4])
-                loss = loss_accu + loss_article + loss_imprison
-                total_valid_loss += loss.item()
-                eval_valid_accu.evaluate(tags_accu, data[2].tolist())
-                eval_valid_article.evaluate(tags_article, data[3].tolist())
-                eval_valid_imprison.evaluate(tags_imprison, data[4].tolist())
-            valid_losses.append(total_valid_loss)
-            eval_valid_accu.generate_result()
-            eval_valid_article.generate_result()
-            eval_valid_imprison.generate_result()
-            name = "bs%d_lr%f_es%d_hs%d_as%d_%s.png" % (
-            batch_size, lr, embed_size, hidden_size, accu_hidden_size, self.train_set)
-            epoch_list.set_description(name[0:-4])
-            print("valid loss: %.3f" % total_valid_loss)
-            print("accu - micro, precision:%.3f, recall:%.3f, F1:%.3f, macro, precision:%.3f, recall:%.3f, F1:%.3f\narticle - micro, precision:%.3f, recall:%.3f, F1:%.3f, macro, precision:%.3f, recall:%.3f, F1:%.3f\nimprison - micro, precision:%.3f, recall:%.3f, F1:%.3f, macro, precision:%.3f, recall:%.3f, F1:%.3f\n" % \
-                                       (eval_valid_accu.precision_micro,
-                                       eval_valid_accu.recall_micro,
-                                       eval_valid_accu.F1_micro,
-                                       eval_valid_accu.precision_macro,
-                                       eval_valid_accu.recall_macro,
-                                       eval_valid_accu.F1_macro,
+            if self.train_set == "small":
+                # Valid
+                model.eval()
+                eval_valid_accu = Eval(len(self.list_accu))
+                eval_valid_article = Eval(len(self.list_law))
+                eval_valid_imprison = Eval(len(self.list_imprison))
+                total_valid_loss = 0
+                for data in valid_data:
+                    outputs_accu, outputs_article, outputs_imprison, tags_accu, tags_article, tags_imprison = model(data[0], data[1])
+                    loss_accu = criterion_accu(outputs_accu, data[2])
+                    loss_article = criterion_article(outputs_article, data[3])
+                    loss_imprison = criterion_imprison(outputs_imprison, data[4])
+                    loss = loss_accu + loss_article + loss_imprison
+                    total_valid_loss += loss.item()
+                    eval_valid_accu.evaluate(tags_accu, data[2].tolist())
+                    eval_valid_article.evaluate(tags_article, data[3].tolist())
+                    eval_valid_imprison.evaluate(tags_imprison, data[4].tolist())
+                valid_losses.append(total_valid_loss)
+                eval_valid_accu.generate_result()
+                eval_valid_article.generate_result()
+                eval_valid_imprison.generate_result()
+                name = "bs%d_lr%f_es%d_hs%d_%s.png" % (
+                batch_size, lr, embed_size, hidden_size, self.train_set)
+                epoch_list.set_description(name[0:-4])
+                print("valid loss: %.3f" % total_valid_loss)
+                print("accu - micro, precision:%.3f, recall:%.3f, F1:%.3f, macro, precision:%.3f, recall:%.3f, F1:%.3f\narticle - micro, precision:%.3f, recall:%.3f, F1:%.3f, macro, precision:%.3f, recall:%.3f, F1:%.3f\nimprison - micro, precision:%.3f, recall:%.3f, F1:%.3f, macro, precision:%.3f, recall:%.3f, F1:%.3f\n" % \
+                                           (eval_valid_accu.precision_micro,
+                                           eval_valid_accu.recall_micro,
+                                           eval_valid_accu.F1_micro,
+                                           eval_valid_accu.precision_macro,
+                                           eval_valid_accu.recall_macro,
+                                           eval_valid_accu.F1_macro,
 
-                                       eval_valid_article.precision_micro,
-                                       eval_valid_article.recall_micro,
-                                       eval_valid_article.F1_micro,
-                                       eval_valid_article.precision_macro,
-                                       eval_valid_article.recall_macro,
-                                       eval_valid_article.F1_macro,
+                                           eval_valid_article.precision_micro,
+                                           eval_valid_article.recall_micro,
+                                           eval_valid_article.F1_micro,
+                                           eval_valid_article.precision_macro,
+                                           eval_valid_article.recall_macro,
+                                           eval_valid_article.F1_macro,
 
-                                       eval_valid_imprison.precision_micro,
-                                       eval_valid_imprison.recall_micro,
-                                       eval_valid_imprison.F1_micro,
-                                       eval_valid_imprison.precision_macro,
-                                       eval_valid_imprison.recall_macro,
-                                       eval_valid_imprison.F1_macro))
+                                           eval_valid_imprison.precision_micro,
+                                           eval_valid_imprison.recall_micro,
+                                           eval_valid_imprison.F1_micro,
+                                           eval_valid_imprison.precision_macro,
+                                           eval_valid_imprison.recall_macro,
+                                           eval_valid_imprison.F1_macro))
 
-            valid_accu_f1.append(eval_valid_accu.F1_macro)
-            valid_article_f1.append(eval_valid_article.F1_macro)
-            valid_imprison_f1.append(eval_valid_imprison.F1_macro)
-            total_f1 = eval_valid_accu.F1_macro + eval_valid_article.F1_macro + eval_valid_imprison.F1_macro
-            if total_f1 > best_f1:
-                best_epoch = epoch
-                best_f1 = total_f1
-                self.config.set("train", "last_model", epoch)
+                valid_accu_f1.append(eval_valid_accu.F1_macro)
+                valid_article_f1.append(eval_valid_article.F1_macro)
+                valid_imprison_f1.append(eval_valid_imprison.F1_macro)
+                total_f1 = eval_valid_accu.F1_macro + eval_valid_article.F1_macro + eval_valid_imprison.F1_macro
+                if total_f1 > best_f1:
+                    best_epoch = epoch
+                    best_f1 = total_f1
+                    self.config.set("train", "last_model", epoch)
+                self.demo.train_valid_record(name, train_losses, valid_losses)
             torch.save(model.state_dict(), os.path.join(model_path, "model-%d.pkl" % (epoch)))
-            self.demo.train_valid_record(name, train_losses, valid_losses)
 
         return valid_accu_f1[best_epoch], valid_article_f1[best_epoch], valid_imprison_f1[best_epoch]

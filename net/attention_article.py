@@ -2,9 +2,12 @@ import ipdb
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from configure import ConfigParser
 
 class AttentionArticle(nn.Module):
     def __init__(self):
+        config = ConfigParser()
+        self.is_single_process = config.getboolean("demo", "is_single_process")
         super(AttentionArticle, self).__init__()
 
     def forward(self, hidden, querys):
@@ -25,6 +28,8 @@ class AttentionArticle(nn.Module):
         hidden = hidden.transpose(1, 2).contiguous()
         factor = torch.bmm(querys, hidden)
         factor = F.softmax(factor, dim=2)
+        if self.is_single_process:
+            print("article attention->", factor)
         hidden = hidden.transpose(1, 2).contiguous()
         result = torch.bmm(factor, hidden)
         result = result.view(batch_size, -1)

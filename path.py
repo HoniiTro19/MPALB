@@ -56,6 +56,8 @@ class Path:
         self.test_small_w2v_path = self.preprocess_path + "test_small_w2v.json"
         self.valid_small_w2v_path = self.preprocess_path + "valid_small_w2v.json"
         self.article_w2v_path = self.preprocess_path + "article_w2v.json"
+        self.article_w2v_small_path = self.preprocess_path + "article_w2v_small.json"
+        self.article_w2v_large_path = self.preprocess_path + "article_w2v_large.json"
         self.legal_basis_w2v_path = self.preprocess_path + "legal_basis_w2v.json"
         self.criminal_basis_w2v_path = self.preprocess_path + "criminal_basis_w2v.json"
         self.penalty_basis_w2v_path = self.preprocess_path + "penalty_basis_w2v.json"

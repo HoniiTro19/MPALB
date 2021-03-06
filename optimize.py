@@ -5,12 +5,11 @@ from preprocessor import Preprocessor
 demo = Demo()
 train = Train()
 preprocessor = Preprocessor()
-default_parameters = {"batch_size": 32, "embed_size": 100, "lr": 0.001, "hidden_size": 512, "accu_hidden_size": 128}
+default_parameters = {"batch_size": 32, "embed_size": 100, "lr": 0.001, "hidden_size": 512}
 batch_sizes = [16, 32, 64, 128]
 embed_sizes = [50, 75, 100, 125, 150]
 lrs = [0.0006, 0.0008, 0.001, 0.0012, 0.0014]
 hidden_sizes = [256, 512, 1024, 2048]
-accu_hidden_sizes = [64, 128, 256, 512]
 
 # Batch Size
 batchsize_accu_f1, batchsize_article_f1, batchsize_imprison_f1 = list(), list(), list()
@@ -45,17 +44,6 @@ for hidden_size in hidden_sizes:
 demo.optimize_plot("hidden_size_optimize.png", hiddensize_accu_f1, hiddensize_article_f1, hiddensize_imprison_f1, hidden_sizes)
 train.config.set("train", "hidden_size", default_parameters["hidden_size"])
 
-# Accu Hidden Size
-accusize_accu_f1, accusize_article_f1, accusize_imprison_f1 = list(), list(), list()
-for accu_hidden_size in accu_hidden_sizes:
-    train.config.set("train", "accu_hidden_size", accu_hidden_size)
-    best_accu_f1, best_article_f1, best_imprison_f1 = train.train_file()
-    accusize_accu_f1.append(best_accu_f1)
-    accusize_article_f1.append(best_article_f1)
-    accusize_imprison_f1.append(best_imprison_f1)
-demo.optimize_plot("accusation_hidden_size_optimize.png", accusize_accu_f1, accusize_article_f1, accusize_imprison_f1, accu_hidden_sizes)
-train.config.set("train", "accu_hidden_size", default_parameters["accu_hidden_size"])
-
 # Embed Size
 embedsize_accu_f1, embedsize_article_f1, embedsize_imprison_f1 = list(), list(), list()
 for embed_size in embed_sizes:
@@ -67,4 +55,4 @@ for embed_size in embed_sizes:
     embedsize_article_f1.append(best_article_f1)
     embedsize_imprison_f1.append(best_imprison_f1)
 demo.optimize_plot("embed_size_optimize.png", embedsize_accu_f1, embedsize_article_f1, embedsize_imprison_f1, embed_sizes)
-train.config.set("preprocess", "embed_size", default_parameters["embed_size"])
+# train.config.set("preprocess", "embed_size", default_parameters["embed_size"])
