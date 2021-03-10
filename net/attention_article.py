@@ -29,7 +29,11 @@ class AttentionArticle(nn.Module):
         factor = torch.bmm(querys, hidden)
         factor = F.softmax(factor, dim=2)
         if self.is_single_process:
-            print("article attention->", factor)
+            factor_shape = factor.shape
+            factor_gt = torch.where(factor > 1e-2, factor, torch.zeros((factor_shape[0], factor_shape[1], factor_shape[2]), device="cuda:0"))
+            factor_nonzero = torch.squeeze(torch.nonzero(factor_gt))
+            print("fact attention->", torch.sum(factor_gt, dim=-1))
+            print("fact attention location->", factor_nonzero)
         hidden = hidden.transpose(1, 2).contiguous()
         result = torch.bmm(factor, hidden)
         result = result.view(batch_size, -1)

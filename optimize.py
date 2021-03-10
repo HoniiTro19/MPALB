@@ -21,17 +21,17 @@ for batch_size in batch_sizes:
     batchsize_imprison_f1.append(best_imprison_f1)
 demo.optimize_plot("batch_size_optimize.png", batchsize_accu_f1, batchsize_article_f1, batchsize_imprison_f1, batch_sizes)
 train.config.set("train", "batch_size", default_parameters["batch_size"])
-
-# Learning Rate
-lr_accu_f1, lr_article_f1, lr_imprison_f1 = list(), list(), list()
-for lr in lrs:
-    train.config.set("train", "lr", lr)
-    best_accu_f1, best_article_f1, best_imprison_f1 = train.train_file()
-    lr_accu_f1.append(best_accu_f1)
-    lr_article_f1.append(best_article_f1)
-    lr_imprison_f1.append(best_imprison_f1)
-demo.optimize_plot("learning_rate_optimize.png", lr_accu_f1, lr_article_f1, lr_imprison_f1, lrs)
-train.config.set("train", "lr", default_parameters["lr"])
+#
+# # Learning Rate
+# lr_accu_f1, lr_article_f1, lr_imprison_f1 = list(), list(), list()
+# for lr in lrs:
+#     train.config.set("train", "lr", lr)
+#     best_accu_f1, best_article_f1, best_imprison_f1 = train.train_file()
+#     lr_accu_f1.append(best_accu_f1)
+#     lr_article_f1.append(best_article_f1)
+#     lr_imprison_f1.append(best_imprison_f1)
+# demo.optimize_plot("learning_rate_optimize.png", lr_accu_f1, lr_article_f1, lr_imprison_f1, lrs)
+# train.config.set("train", "lr", default_parameters["lr"])
 
 # Hidden Size
 hiddensize_accu_f1, hiddensize_article_f1, hiddensize_imprison_f1 = list(), list(), list()
@@ -44,15 +44,15 @@ for hidden_size in hidden_sizes:
 demo.optimize_plot("hidden_size_optimize.png", hiddensize_accu_f1, hiddensize_article_f1, hiddensize_imprison_f1, hidden_sizes)
 train.config.set("train", "hidden_size", default_parameters["hidden_size"])
 
-# Embed Size
-embedsize_accu_f1, embedsize_article_f1, embedsize_imprison_f1 = list(), list(), list()
-for embed_size in embed_sizes:
-    train.config.set("preprocess", "embed_size", embed_size)
-    preprocessor = Preprocessor()
-    preprocessor.preprocess()
-    best_accu_f1, best_article_f1, best_imprison_f1 = train.train_file()
-    embedsize_accu_f1.append(best_accu_f1)
-    embedsize_article_f1.append(best_article_f1)
-    embedsize_imprison_f1.append(best_imprison_f1)
-demo.optimize_plot("embed_size_optimize.png", embedsize_accu_f1, embedsize_article_f1, embedsize_imprison_f1, embed_sizes)
+# # Embed Size
+# embedsize_accu_f1, embedsize_article_f1, embedsize_imprison_f1 = list(), list(), list()
+# for embed_size in embed_sizes:
+#     train.config.set("preprocess", "embed_size", embed_size)
+#     preprocessor = Preprocessor()
+#     preprocessor.preprocess()
+#     best_accu_f1, best_article_f1, best_imprison_f1 = train.train_file()
+#     embedsize_accu_f1.append(best_accu_f1)
+#     embedsize_article_f1.append(best_article_f1)
+#     embedsize_imprison_f1.append(best_imprison_f1)
+# demo.optimize_plot("embed_size_optimize.png", embedsize_accu_f1, embedsize_article_f1, embedsize_imprison_f1, embed_sizes)
 # train.config.set("preprocess", "embed_size", default_parameters["embed_size"])

@@ -213,6 +213,7 @@ class Demo:
         plt.ylabel("Occurrence Number")
         plt.xticks(np.arange(len(intervals)), intervals)
         plt.savefig(save_path)
+        plt.close()
 
     def train_valid_record(self, name, train_loss, valid_loss):
         epoch_num = len(train_loss)
@@ -240,13 +241,13 @@ class Demo:
         plt.margins(0.2)
         plt.subplots_adjust(bottom=0.15)
         plt.savefig(save_path)
+        plt.close()
 
     def display_imprison(self, cm, name):
         classes = ["0", "6", "9", "12", "24", "36", "60", "84", "120", "120-", "DP_LI"]
         cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
         str_cm = cm.astype(np.str).tolist()
-        for row in str_cm:
-            print('\t'.join(row))
+
         for i in range(cm.shape[0]):
             for j in range(cm.shape[1]):
                 if int(cm[i, j] * 100 + 0.5) == 0:
@@ -276,7 +277,6 @@ class Demo:
         fig.tight_layout()
         save_path = path.demo_figure_path + name
         plt.savefig(save_path, dpi=300)
-        plt.show()
 
 if __name__ == "__main__":
     path = Path(config)

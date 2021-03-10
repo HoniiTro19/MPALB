@@ -15,7 +15,6 @@ config = ConfigParser()
 path = Path(config)
 
 # Parameters
-batch_size = 1
 max_seq_len = config.getint("preprocess", "max_seq_len")
 use_gpu = config.getboolean("train", "use_gpu")
 device_num = config.getint("train", "gpu_device")
@@ -46,13 +45,14 @@ filter = all_punc + stop_words
 model = Word2Vec.load(path.w2v_model_path)
 vocab = model.wv.vocab
 dictionary = dict()
+dictionary_list = list()
 embed_matrix = []
 for word in vocab.keys():
     dictionary[word] = len(dictionary)
+    dictionary_list.append(word)
     embed_matrix.append(model.wv[word].tolist())
 
 # Model
-config.set("train", "batch_size", batch_size)
 model = FullModel()
 model_path = path.model_path
 model_pretrain_path = model_path + "model-%d.pkl" % config.getint("train", "last_model")
@@ -60,29 +60,44 @@ model.load_state_dict(torch.load(model_pretrain_path))
 model.to(device)
 model.eval()
 
-def predict(fact):
-    for sub in sub_list:
-        sub = re.compile(sub)
-        fact = re.sub(sub, "", fact)
-    fact_cut = " ".join(jieba.cut(fact.strip()))
-    fact_embed = []
-    fact_len = 0
-    for word in fact_cut:
-        if fact_len == max_seq_len:
-            break
-        if word not in filter:
-            try:
-                fact_embed.append(dictionary[word])
-                fact_len += 1
-            except Exception:
-                continue
-    input_fact = torch.tensor(fact_embed, device=device, dtype=torch.int64)
-    input_len = torch.tensor([fact_len], device=device, dtype=torch.int64)
+def predict(facts):
+    facts_embed = list()
+    facts_len = list()
+    idx = 0
+    for fact in facts:
+        for sub in sub_list:
+            sub = re.compile(sub)
+            fact = re.sub(sub, "", fact)
+        fact_cut = jieba.cut(fact.strip())
+        fact_embed = list()
+        fact_seg = list()
+        fact_len = 0
+        for word in fact_cut:
+            if fact_len == max_seq_len:
+                break
+            if word not in filter:
+                try:
+                    fact_embed.append(dictionary[word])
+                    fact_len += 1
+                    fact_seg.append(word)
+                except Exception:
+                    continue
+        with open(path.log_dir + "case_study.txt", "w", encoding="UTF-8") as file:
+            file.write("case %d: %s" % (idx, " ".join(fact_seg)))
+        print("seq len %d + \n" % fact_len)
+        idx += 1
+        fact_embed += [len(dictionary)] * (max_seq_len - fact_len)
+        facts_embed.append(fact_embed)
+        facts_len.append(fact_len)
+
+    input_fact = torch.tensor(facts_embed, device=device, dtype=torch.int64)
+    input_len = torch.tensor(facts_len, device=device, dtype=torch.int64)
     _, _, _, tags_accu, tags_article, tags_imprison = model(input_fact, input_len)
     output = dict()
-    output['accusation'] = tags_accu.tolist()
-    output['articles'] = tags_article.tolist()
-    output['imprison'] = tags_imprison.tolist()
+    output['accusation'] = tags_accu
+    output['articles'] = tags_article
+    output['imprison'] = tags_imprison
+    print(output)
     return output
 
 def server_start():
@@ -144,5 +159,18 @@ class ServerThreading(threading.Thread):
     def __del__(self):
         pass
 
+def case_study():
+    case_idx = 6
+    train_small_path = path.train_small_path
+    facts = list()
+    idx = 1
+    with open(train_small_path, "r", encoding="UTF-8") as file:
+        while idx < case_idx:
+            file.readline()
+            idx += 1
+        facts.append(json.loads(file.readline().strip("\n"))["fact"])
+    predict(facts)
+
 if __name__ == "__main__":
-    server_start()
+    # server_start()
+    case_study()

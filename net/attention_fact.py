@@ -24,7 +24,11 @@ class AttentionFact(nn.Module):
         factor = factor.transpose(1, 2).contiguous()
         factor = F.softmax(factor, dim=2)
         if self.is_single_process:
-            print("fact attention->", factor)
+            factor_shape = factor.shape
+            factor_gt = torch.where(factor > 1e-2, factor, torch.zeros((factor_shape[0], factor_shape[1], factor_shape[2]), device="cuda:0"))
+            factor_nonzero = torch.squeeze(torch.nonzero(factor_gt))
+            print("fact attention->", torch.sum(factor_gt, dim=-1))
+            print("fact attention location->", factor_nonzero)
         result = torch.matmul(factor, hidden)
         result = result.view(-1, channel_num * hidden_size)
         return result

@@ -37,6 +37,9 @@ class RNN(nn.Module):
         # ReLU
         self.relu = nn.GELU()
 
+        # Dropout
+        self.dropout = nn.Dropout(0.2)
+
     def init_hidden(self, batch_size=None):
         if batch_size is None:
             batch_size = self.batch_size
@@ -59,4 +62,5 @@ class RNN(nn.Module):
         rnn_out, self.hidden = self.rnn(fact_packed, self.hidden)
         fact_unpacked, _ = pad_packed_sequence(rnn_out, batch_first=True, total_length=self.max_seq_len)
         rnn_reduced = self.relu(self.reduce_hidden(fact_unpacked))
+        rnn_reduced = self.dropout(rnn_reduced)
         return rnn_reduced

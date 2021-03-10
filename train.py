@@ -95,6 +95,9 @@ class Train():
         criterion_accu = FocalLoss(class_num=len(self.list_accu)).to(self.device)
         criterion_article = FocalLoss(class_num=len(self.list_law)).to(self.device)
         criterion_imprison = FocalLoss(class_num=len(self.list_imprison)).to(self.device)
+        # criterion_accu = nn.CrossEntropyLoss().to(self.device)
+        # criterion_article = nn.CrossEntropyLoss().to(self.device)
+        # criterion_imprison = nn.CrossEntropyLoss().to(self.device)
         epoch_list = tqdm(range(epochs))
 
         best_f1 = 0
@@ -126,8 +129,8 @@ class Train():
             eval_train_accu.generate_result()
             eval_train_article.generate_result()
             eval_train_imprison.generate_result()
-            print("train loss: %.3f" % total_train_loss)
-            print("accu - micro, precision:%.3f, recall:%.3f, F1:%.3f, macro, precision:%.3f, recall:%.3f, F1:%.3f\narticle - micro, precision:%.3f, recall:%.3f, F1:%.3f, macro, precision:%.3f, recall:%.3f, F1:%.3f\nimprison - micro, precision:%.3f, recall:%.3f, F1:%.3f, macro, precision:%.3f, recall:%.3f, F1:%.3f\n" % \
+            print("train loss: %.4f" % total_train_loss)
+            print("accu - micro, precision:%.4f, recall:%.4f, F1:%.4f, macro, precision:%.4f, recall:%.4f, F1:%.4f\narticle - micro, precision:%.4f, recall:%.4f, F1:%.4f, macro, precision:%.4f, recall:%.4f, F1:%.4f\nimprison - micro, precision:%.4f, recall:%.4f, F1:%.4f, macro, precision:%.4f, recall:%.4f, F1:%.4f\n" % \
                                        (eval_train_accu.precision_micro,
                                        eval_train_accu.recall_micro,
                                        eval_train_accu.F1_micro,
@@ -173,8 +176,8 @@ class Train():
                 name = "bs%d_lr%f_es%d_hs%d_%s.png" % (
                 batch_size, lr, embed_size, hidden_size, self.train_set)
                 epoch_list.set_description(name[0:-4])
-                print("valid loss: %.3f" % total_valid_loss)
-                print("accu - micro, precision:%.3f, recall:%.3f, F1:%.3f, macro, precision:%.3f, recall:%.3f, F1:%.3f\narticle - micro, precision:%.3f, recall:%.3f, F1:%.3f, macro, precision:%.3f, recall:%.3f, F1:%.3f\nimprison - micro, precision:%.3f, recall:%.3f, F1:%.3f, macro, precision:%.3f, recall:%.3f, F1:%.3f\n" % \
+                print("valid loss: %.4f" % total_valid_loss)
+                print("accu - micro, precision:%.4f, recall:%.4f, F1:%.4f, macro, precision:%.4f, recall:%.4f, F1:%.4f\narticle - micro, precision:%.4f, recall:%.4f, F1:%.4f, macro, precision:%.4f, recall:%.4f, F1:%.4f\nimprison - micro, precision:%.4f, recall:%.4f, F1:%.4f, macro, precision:%.4f, recall:%.4f, F1:%.4f\n" % \
                                            (eval_valid_accu.precision_micro,
                                            eval_valid_accu.recall_micro,
                                            eval_valid_accu.F1_micro,

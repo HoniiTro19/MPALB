@@ -3,6 +3,7 @@ import ipdb
 import torch
 from path import Path
 from eval import Eval
+from demo import Demo
 import torch.nn as nn
 from loader import SmallDataset
 from utils import load_list_dict
@@ -12,6 +13,7 @@ from torch.utils.data import DataLoader
 
 config = ConfigParser()
 path = Path(config)
+demo = Demo()
 
 model_path = path.model_path
 model = FullModel()
@@ -78,8 +80,9 @@ for data in test_data:
 eval_accu.generate_result()
 eval_article.generate_result()
 eval_imprison.generate_result()
-print("test loss: %.3f" % total_loss)
-print("accu - micro, precision:%.3f, recall:%.3f, F1:%.3f, macro, precision:%.3f, recall:%.3f, F1:%.3f\narticle - micro, precision:%.3f, recall:%.3f, F1:%.3f, macro, precision:%.3f, recall:%.3f, F1:%.3f\nimprison - micro, precision:%.3f, recall:%.3f, F1:%.3f, macro, precision:%.3f, recall:%.3f, F1:%.3f\n" % \
+ipdb.set_trace()
+print("test loss: %.4f" % total_loss)
+print("accu - micro, precision:%.4f, recall:%.4f, F1:%.4f, macro, precision:%.4f, recall:%.4f, F1:%.4f\narticle - micro, precision:%.4f, recall:%.4f, F1:%.4f, macro, precision:%.4f, recall:%.4f, F1:%.4f\nimprison - micro, precision:%.4f, recall:%.4f, F1:%.4f, macro, precision:%.4f, recall:%.4f, F1:%.4f\n" % \
                            (eval_accu.precision_micro,
                            eval_accu.recall_micro,
                            eval_accu.F1_micro,
@@ -100,4 +103,6 @@ print("accu - micro, precision:%.3f, recall:%.3f, F1:%.3f, macro, precision:%.3f
                            eval_imprison.precision_macro,
                            eval_imprison.recall_macro,
                            eval_imprison.F1_macro))
+
+demo.display_imprison(eval_imprison.confusion_matrix, "imprison_confusion_matrix.png")
 
