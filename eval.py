@@ -12,7 +12,7 @@ class Eval:
         self.precision = [0] * class_num
         self.recall = [0] * class_num
         self.F1 = [0] * class_num
-        self.confusion_matrix = np.zeros([class_num, class_num])
+        self.confusion_matrix = np.zeros([class_num, class_num], dtype=np.int64)
 
     def evaluate(self, preds, truths):
         for pred, truth in zip(preds, truths):

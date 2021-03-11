@@ -246,7 +246,6 @@ class Demo:
     def display_imprison(self, cm, name):
         classes = ["0", "6", "9", "12", "24", "36", "60", "84", "120", "120-", "DP_LI"]
         cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
-        str_cm = cm.astype(np.str).tolist()
 
         for i in range(cm.shape[0]):
             for j in range(cm.shape[1]):
@@ -254,7 +253,6 @@ class Demo:
                     cm[i, j] = 0
 
         fig, ax = plt.subplots()
-
         ax.set(xticks=np.arange(cm.shape[1]),
                yticks=np.arange(cm.shape[0]),
                xticklabels=classes, yticklabels=classes,
@@ -267,13 +265,12 @@ class Demo:
         ax.tick_params(which="minor", bottom=False, left=False)
 
         fmt = 'd'
-        thresh = cm.max() / 2.
         for i in range(cm.shape[0]):
             for j in range(cm.shape[1]):
                 if int(cm[i, j] * 100 + 0.5) > 0:
                     ax.text(j, i, format(int(cm[i, j] * 100 + 0.5), fmt) + '%',
-                            ha="center", va="center",
-                            color="white" if cm[i, j] > thresh else "black")
+                            ha="center", va="center", color="black" )
+
         fig.tight_layout()
         save_path = path.demo_figure_path + name
         plt.savefig(save_path, dpi=300)

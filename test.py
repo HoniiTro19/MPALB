@@ -80,7 +80,6 @@ for data in test_data:
 eval_accu.generate_result()
 eval_article.generate_result()
 eval_imprison.generate_result()
-ipdb.set_trace()
 print("test loss: %.4f" % total_loss)
 print("accu - micro, precision:%.4f, recall:%.4f, F1:%.4f, macro, precision:%.4f, recall:%.4f, F1:%.4f\narticle - micro, precision:%.4f, recall:%.4f, F1:%.4f, macro, precision:%.4f, recall:%.4f, F1:%.4f\nimprison - micro, precision:%.4f, recall:%.4f, F1:%.4f, macro, precision:%.4f, recall:%.4f, F1:%.4f\n" % \
                            (eval_accu.precision_micro,
