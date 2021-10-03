@@ -100,8 +100,8 @@ class Preprocessor:
         for data in dataset:
             accu_frequency[data["accusation"]] += 1
             article_frequency[data["article"]] += 1
-        accu_frequent = [accu for accu in accus if accu_frequency[accu] > 120]
-        article_frequent = [article for article in articles if article_frequency[article] > 120]
+        accu_frequent = [accu for accu in accus if accu_frequency[accu] > 100]
+        article_frequent = [article for article in articles if article_frequency[article] > 100]
 
         with open(tar_accu_path, "w", encoding="UTF-8") as file:
             for accu in accu_frequent:
@@ -154,9 +154,9 @@ class Preprocessor:
                     "公诉机关指控",
                     "[\w]+检察院指控",
                     "[\w]+起诉书指控",
-                    "[\d]+年[\d]+月[\d]+日[\w]+[\d]+[时]+[左右|许]+"
+                    "[\d]+年[\d]+月[\d]+日[\w]+[\d]+[时]+[左右|许]+",
                     "[应]*[依照]*《中华人民共和国刑法》[\w]+[的|之]*[规定]*",
-                    "认为被告人[\w]+的行为已构成[×|X|＊]+罪"
+                    "认为被告人[\w]+的行为已构成[×|X|＊]+罪",
                     "[提请本院依法惩处|要求依法判处|诉请本院依法判处]",
                     "[足以|据此]认定",
                     "上述[指控|事实]",
